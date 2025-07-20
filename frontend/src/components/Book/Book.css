@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+.book {
+  @apply bg-white text-black my-2 rounded-lg touch-none p-2 flex w-full justify-between;
+}

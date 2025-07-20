@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+.btn {
+  @apply rounded-sm p-2 border-2;
+}
+
+.btn:hover {
+  @apply cursor-pointer;
+}

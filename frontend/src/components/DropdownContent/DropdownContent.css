@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+.dropdown-content {
+  @apply absolute min-w-full flex flex-col items-center ml-2.5 bg-white rounded-lg z-10 shadow-sm shadow-neutral-800 overflow-y-scroll transition-all;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  max-height: 40vh;
+  top: -20%;
+  left: 100%;
+  opacity: 0;
+  transform: translateX(5%);
+  pointer-events: none;
+}
+
+.dropdown-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.content-open {
+  opacity: 100;
+  transform: translateX(0);
+  pointer-events: auto;
+}

@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+
+.dropdown-btn {
+  @apply flex items-center w-fit;
+}
+
+.toggle-icon {
+  @apply flex items-center justify-center ml-1;
+}

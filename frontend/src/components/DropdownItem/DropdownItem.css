@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+.dropdown-item {
+  @apply p-4 w-full cursor-pointer bg-white z-20;
+}
+.dropdown-item:hover {
+  @apply bg-neutral-100;
+}

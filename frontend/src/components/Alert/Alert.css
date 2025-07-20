@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+
+.alert {
+  @apply w-fit p-4 flex gap-2.5 items-center justify-center text-black bg-white rounded-xl border-2 border-black border-l-8;
+}
+.alert-success {
+  @apply border-l-green-600;
+}
+
+.alert-warning {
+  @apply border-l-yellow-600;
+}
+.alert-error {
+  @apply border-l-red-600;
+}

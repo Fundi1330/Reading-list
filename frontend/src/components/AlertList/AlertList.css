@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+.alert-list {
+  @apply z-20 fixed flex gap-1.5 flex-col items-center justify-center w-full;
+}

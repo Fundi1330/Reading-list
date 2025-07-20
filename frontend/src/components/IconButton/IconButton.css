@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+.icon-btn,
+.icon-btn:hover {
+  @apply outline-0 border-0;
+}

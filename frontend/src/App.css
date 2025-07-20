@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.grid-card {
+  @apply rounded-2xl p-8 m-2;
+}
+
+main {
+  flex-grow: 1;
+}
