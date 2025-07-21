@@ -1,4 +1,4 @@
-import { RiArrowDownWideLine, RiArrowRightWideLine } from 'react-icons/ri';
+import { RiArrowDownWideLine, RiArrowLeftWideLine } from 'react-icons/ri';
 import Button from '../Button/Button';
 import { forwardRef, type ReactNode } from 'react';
 import './DropdownButton.css';
@@ -24,7 +24,7 @@ const DropDownButton = forwardRef<HTMLButtonElement, DropdownButtonProps>(
       >
         {children}
         {open ? (
-          <RiArrowRightWideLine className='toggle-icon' size='1.5rem' />
+          <RiArrowLeftWideLine className='toggle-icon' size='1.5rem' />
         ) : (
           <RiArrowDownWideLine className='toggle-icon' size='1.5rem' />
         )}

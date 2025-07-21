@@ -6,6 +6,7 @@ import {
 } from '../../context/AlertContext';
 import Button from '../Button/Button';
 import { RiCloseLargeFill } from 'react-icons/ri';
+import IconButton from '../IconButton/IconButton';
 
 interface AlertProps {
   id: string;
@@ -19,12 +20,14 @@ function Alert({ id, className, children }: AlertProps) {
     setAlerts((alerts: AlertProps[]) => alerts.filter((a) => !(a.id === id)));
   };
 
+  const ButtonWithIcon = IconButton(Button);
+
   return (
     <div className={`alert ${className ? className : ''}`}>
       {children}
-      <Button onClick={onClick}>
+      <ButtonWithIcon onClick={onClick}>
         <RiCloseLargeFill size='1.2rem' />
-      </Button>
+      </ButtonWithIcon>
     </div>
   );
 }

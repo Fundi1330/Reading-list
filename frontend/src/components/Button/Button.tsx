@@ -10,7 +10,6 @@ interface ButtonProps {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const { className, children, onClick } = props;
-  console.log(className === 'icon-btn');
   return (
     <button
       ref={ref}

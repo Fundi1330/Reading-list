@@ -25,6 +25,15 @@ import {
 import AlertList from './components/AlertList/AlertList';
 import Input from './components/Input/Input';
 import Submit from './components/Submit/Submit';
+import axios, { AxiosError } from 'axios';
+import config from './config.json';
+import {
+  CategoryIdsContext,
+  type CategoryIdsContextType,
+} from './context/CategoryIdsContext';
+import type { AlertType } from './components/Alert/Alert';
+import { v4 } from 'uuid';
+import { AlertContext, type AlertContextType } from './context/AlertContext';
 
 function App() {
   const { plans, setPlans } = useContext<PlansContextType>(PlansContext);
@@ -32,60 +41,28 @@ function App() {
     useContext<InProgerssContextType>(InProcessContext);
   const { finished, setFinished } =
     useContext<FinishedContextType>(FinishedContext);
+  const { categoryIds, setCategoryIds } =
+    useContext<CategoryIdsContextType>(CategoryIdsContext);
 
   useEffect(() => {
-    setPlans([
-      {
-        id: 1,
-        name: 'Hamlet',
-        category: 'plans',
-      },
-      {
-        id: 2,
-        name: 'City',
-        category: 'plans',
-      },
-      {
-        id: 3,
-        name: 'Divine Comedy',
-        category: 'plans',
-      },
-    ]);
-
-    setInProcess([
-      {
-        id: 4,
-        name: 'Hamlet',
-        category: 'in-process',
-      },
-      {
-        id: 5,
-        name: 'City',
-        category: 'in-process',
-      },
-      {
-        id: 6,
-        name: 'Divine Comedy',
-        category: 'in-process',
-      },
-    ]);
-    setFinished([
-      {
-        id: 7,
-        name: 'Hamlet',
-        category: 'finished',
-      },
-      {
-        id: 8,
-        name: 'City',
-        category: 'finished',
-      },
-      {
-        id: 9,
-        name: 'Divine Comedy',
-        category: 'finished',
-      },
-    ]);
+    axios
+      .get(config.API_URL + '/category_ids/')
+      .then((categories) => {
+        setCategoryIds(categories.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    axios
+      .get(config.API_URL + '/books_by_categories/')
+      .then((books) => {
+        setPlans(books.data.plans);
+        setInProcess(books.data['in-process']);
+        setFinished(books.data.finished);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   const getBookPos = (id: Number, books: BookType[]) =>
@@ -101,21 +78,41 @@ function App() {
       const originalPos = getBookPos(active.id as Number, books);
       const newPos = getBookPos(over.id as Number, books);
 
-      return arrayMove(books, originalPos, newPos);
+      if (bookElement == null) return;
+      let book = books.find((b) => b.id === over.id);
+      if (book == null) return;
+      const new_order: { [key: number]: number } = {};
+      books = arrayMove(books, originalPos, newPos);
+      books.forEach((book, pos) => {
+        new_order[book.id] = pos;
+      });
+
+      axios
+        .patch(config.API_URL + `/books/reorder/`, {
+          order: new_order,
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      return books;
     };
     const targetElement = event.activatorEvent.target as HTMLElement;
-    const category = targetElement.dataset['category'];
+    const bookElement = targetElement.closest('.book') as HTMLElement | null;
+    const category = bookElement?.dataset['category'];
 
     if (category === 'plans') {
       setPlans(moveBooksPosition(plans));
     } else if (category === 'in-process') {
       setInProcess(moveBooksPosition(inProcess));
-    } else {
+    } else if (category === 'finished') {
       setFinished(moveBooksPosition(finished));
     }
   };
 
   const [text, setText] = useState('');
+
+  const { setAlerts } = useContext<AlertContextType>(AlertContext);
 
   const handleChange = (e: ChangeEvent) => {
     const target = e.target as HTMLInputElement;
@@ -125,14 +122,42 @@ function App() {
   const handleSubmit = (value: string) => {
     if (value === '') return;
 
-    const id = Math.floor(Math.random() * (2000 - 20 + 1) + 20);
     const book: BookType = {
-      id: id,
+      id: 0, // the id is set after the request
       name: value,
       category: 'plans',
+      category_id: categoryIds.plans,
+      position: plans.length,
     };
-    setText('');
-    setPlans((plans: BookType[]) => [...plans, book]);
+    console.log(book.position);
+
+    axios
+      .post(config.API_URL + '/books/', {
+        name: book.name,
+        category_id: book.category_id,
+        position: book.position,
+      })
+      .then((resp) => {
+        book.id = resp.data.id;
+        setPlans((plans: BookType[]) => [...plans, book]);
+        setText('');
+      })
+      .catch((err: AxiosError) => {
+        const alert: AlertType = {
+          id: v4(),
+          children: (err.response?.data as { message?: string })?.message,
+          className: 'alert-error',
+        };
+
+        setAlerts((alerts: AlertType[]) => [...alerts, alert]);
+        setTimeout(() => {
+          setAlerts((alerts: AlertType[]) =>
+            alerts.filter((a) => {
+              return !(a.id === alert.id);
+            })
+          );
+        }, 2500);
+      });
   };
 
   const sensors = useSensors(
@@ -160,10 +185,15 @@ function App() {
         <h1 className='text-5xl'>Reading List</h1>
         <AlertList />
       </header>
-      <main className='flex flex-col min-h-100'>
+      <main className='flex flex-col overflow-hidden'>
         <div>
           <h2 className='text-4xl'>Add book</h2>
-          <div className='flex items-center justify-center gap-2'>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+            className='flex items-center justify-center gap-2'
+          >
             <Input
               type='text'
               className='add-book'
@@ -176,9 +206,9 @@ function App() {
               className='submit-btn'
               value='Add!'
             />
-          </div>
+          </form>
         </div>
-        <div className='block sm:grid sm:grid-cols-3 h-100 flex-grow-1'>
+        <div className='grid-card-container '>
           <div className='grid-card bg-cyan-600'>
             <h3 className='text-3xl'>Plans</h3>
             <BookList books={plans} type='plans'></BookList>

@@ -8,12 +8,24 @@
   flex-direction: column;
   height: 100vh;
   overflow-x: hidden;
-}
-
-.grid-card {
-  @apply rounded-2xl p-8 m-2;
+  gap: 1rem;
 }
 
 main {
-  flex-grow: 1;
+  height: 90%;
+}
+.add-book {
+  @apply w-full sm:w-fit;
+}
+
+.grid-card-container {
+  @apply gap-2.5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3;
+  grid-auto-rows: 1fr;
+  flex: 1 1 0%;
+  min-height: 0;
+}
+
+.grid-card {
+  @apply flex flex-col h-full rounded-2xl p-8 overflow-auto;
+  scrollbar-width: thin;
 }

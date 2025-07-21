@@ -18,6 +18,8 @@ function BookList({ type, books }: BookListProps) {
         id={book.id}
         name={book.name}
         category={book.category}
+        category_id={book.category_id}
+        position={book.position}
       />
     );
   };

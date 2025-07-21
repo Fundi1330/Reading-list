@@ -21,19 +21,30 @@ import {
 import type { AlertType } from '../Alert/Alert';
 import { v4 } from 'uuid';
 import IconButton from '../IconButton/IconButton';
+import axios from 'axios';
+import config from '../../config.json';
+import {
+  CategoryIdsContext,
+  type CategoryIdsContextType,
+} from '../../context/CategoryIdsContext';
 
 interface BookProps {
   id: number;
   name: string;
   category: 'plans' | 'in-process' | 'finished';
+  category_id: number;
+  position: number;
 }
 
-function Book({ id, name, category }: BookProps) {
+function Book({ id, name, category, category_id }: BookProps) {
   const { setPlans } = useContext<PlansContextType>(PlansContext);
   const { setInProcess } = useContext<InProgerssContextType>(InProcessContext);
   const { setFinished } = useContext<FinishedContextType>(FinishedContext);
 
   const { setAlerts } = useContext<AlertContextType>(AlertContext);
+
+  const { categoryIds } =
+    useContext<CategoryIdsContextType>(CategoryIdsContext);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
@@ -69,12 +80,6 @@ function Book({ id, name, category }: BookProps) {
   );
 
   const switchCategory = (categoryToSwitch: BookProps['category']) => {
-    const book: BookProps = {
-      id,
-      name,
-      category: categoryToSwitch,
-    };
-
     // Remove from current category
     if (category === 'plans') {
       setPlans((plans: BookProps[]) => plans.filter((b) => b.id !== id));
@@ -89,13 +94,41 @@ function Book({ id, name, category }: BookProps) {
     }
 
     // Add to new category
+    const newCategoryId = categoryIds[categoryToSwitch];
+    const book: BookProps = {
+      id,
+      name,
+      category: categoryToSwitch,
+      category_id: newCategoryId,
+      position: 0,
+    };
+
     if (categoryToSwitch === 'plans') {
-      setPlans((plans: BookProps[]) => [...plans, book]);
+      setPlans((plans: BookProps[]) => {
+        book.position = plans.length;
+        return [...plans, book];
+      });
     } else if (categoryToSwitch === 'in-process') {
-      setInProcess((inProcess: BookProps[]) => [...inProcess, book]);
+      setInProcess((inProcess: BookProps[]) => {
+        book.position = inProcess.length;
+        console.log(inProcess);
+        return [...inProcess, book];
+      });
     } else if (categoryToSwitch === 'finished') {
-      setFinished((finished: BookProps[]) => [...finished, book]);
+      setFinished((finished: BookProps[]) => {
+        book.position = finished.length;
+        return [...finished, book];
+      });
     }
+    axios
+      .patch(config.API_URL + `/books/${id}/`, {
+        name: book.name,
+        category_id: book.category_id,
+        position: book.position,
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const ButtonWithIcon = IconButton(Button);
@@ -106,7 +139,7 @@ function Book({ id, name, category }: BookProps) {
       {...attributes}
       {...listeners}
       style={style}
-      className='book'
+      className='book cursor-grab'
       data-category={category}
     >
       <p className='flex items-center justify-center'>{name}</p>
