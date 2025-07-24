@@ -26,7 +26,7 @@ function Alert({ id, className, children }: AlertProps) {
     <div className={`alert ${className ? className : ''}`}>
       {children}
       <ButtonWithIcon onClick={onClick}>
-        <RiCloseLargeFill size='1.2rem' />
+        <RiCloseLargeFill size='1.35rem' />
       </ButtonWithIcon>
     </div>
   );

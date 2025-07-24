@@ -34,6 +34,7 @@ import {
 import type { AlertType } from './components/Alert/Alert';
 import { v4 } from 'uuid';
 import { AlertContext, type AlertContextType } from './context/AlertContext';
+import { useBookListByCategory } from './hooks/useBookListByCategory';
 
 function App() {
   const { plans, setPlans } = useContext<PlansContextType>(PlansContext);
@@ -43,6 +44,9 @@ function App() {
     useContext<FinishedContextType>(FinishedContext);
   const { categoryIds, setCategoryIds } =
     useContext<CategoryIdsContextType>(CategoryIdsContext);
+
+  const { getBookListByCategory, getBookListSetterByCategory } =
+    useBookListByCategory();
 
   useEffect(() => {
     axios
@@ -101,13 +105,10 @@ function App() {
     const bookElement = targetElement.closest('.book') as HTMLElement | null;
     const category = bookElement?.dataset['category'];
 
-    if (category === 'plans') {
-      setPlans(moveBooksPosition(plans));
-    } else if (category === 'in-process') {
-      setInProcess(moveBooksPosition(inProcess));
-    } else if (category === 'finished') {
-      setFinished(moveBooksPosition(finished));
-    }
+    if (category == null) return;
+    getBookListSetterByCategory(category as BookType['category'])(
+      moveBooksPosition(getBookListByCategory(category as BookType['category']))
+    );
   };
 
   const [text, setText] = useState('');
@@ -156,7 +157,7 @@ function App() {
               return !(a.id === alert.id);
             })
           );
-        }, 2500);
+        }, 2000);
       });
   };
 

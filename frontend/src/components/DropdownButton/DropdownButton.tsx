@@ -24,9 +24,9 @@ const DropDownButton = forwardRef<HTMLButtonElement, DropdownButtonProps>(
       >
         {children}
         {open ? (
-          <RiArrowLeftWideLine className='toggle-icon' size='1.5rem' />
+          <RiArrowLeftWideLine className='toggle-icon' size='1.35rem' />
         ) : (
-          <RiArrowDownWideLine className='toggle-icon' size='1.5rem' />
+          <RiArrowDownWideLine className='toggle-icon' size='1.35rem' />
         )}
       </DropdownButton>
     );

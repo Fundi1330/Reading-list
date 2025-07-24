@@ -2,7 +2,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import './Book.css';
 import { CSS } from '@dnd-kit/utilities';
 import Button from '../Button/Button';
-import { RiFileCopyLine } from 'react-icons/ri';
+import {
+  RiCheckFill,
+  RiDeleteBin5Line,
+  RiFileCopyLine,
+  RiPencilLine,
+} from 'react-icons/ri';
 import Dropdown from '../Dropdown/Dropdown';
 import DropdownItem from '../DropdownItem/DropdownItem';
 import {
@@ -13,7 +18,7 @@ import {
   type InProgerssContextType,
   type FinishedContextType,
 } from '../../context/BooksContext';
-import { useContext } from 'react';
+import { useContext, useState, type ChangeEvent } from 'react';
 import {
   AlertContext,
   type AlertContextType,
@@ -27,6 +32,8 @@ import {
   CategoryIdsContext,
   type CategoryIdsContextType,
 } from '../../context/CategoryIdsContext';
+import { useBookListByCategory } from '../../hooks/useBookListByCategory';
+import Input from '../Input/Input';
 
 interface BookProps {
   id: number;
@@ -36,7 +43,7 @@ interface BookProps {
   position: number;
 }
 
-function Book({ id, name, category, category_id }: BookProps) {
+function Book({ id, name, category, category_id, position }: BookProps) {
   const { setPlans } = useContext<PlansContextType>(PlansContext);
   const { setInProcess } = useContext<InProgerssContextType>(InProcessContext);
   const { setFinished } = useContext<FinishedContextType>(FinishedContext);
@@ -49,13 +56,19 @@ function Book({ id, name, category, category_id }: BookProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
+  const { getBookListSetterByCategory } = useBookListByCategory();
+
+  const [bookName, setBookName] = useState(name);
+  const [isEditing, setEditing] = useState(false);
+  const [text, setText] = useState(bookName);
+
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
   };
 
   const copyText = () => {
-    navigator.clipboard.writeText(name);
+    navigator.clipboard.writeText(bookName);
 
     const alert: AlertType = {
       id: v4(),
@@ -70,7 +83,56 @@ function Book({ id, name, category, category_id }: BookProps) {
           return !(a.id === alert.id);
         })
       );
-    }, 2500);
+    }, 2000);
+  };
+
+  const handleChange = (e: ChangeEvent) => {
+    const target = e.target as HTMLInputElement;
+    setText(target.value);
+  };
+
+  const saveChanges = () => {
+    axios
+      .patch(config.API_URL + `/books/${id}/`, {
+        name: text,
+        category_id: category_id,
+        position: position,
+      })
+      .then(() => {
+        setBookName(text);
+        setEditing(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const deleteBook = () => {
+    axios
+      .delete(config.API_URL + `/books/${id}/`)
+      .then(() => {
+        getBookListSetterByCategory(category as BookProps['category'])(
+          (books: BookProps[]) => books.filter((b) => !(b.id === id))
+        );
+
+        const alert: AlertType = {
+          id: v4(),
+          children: 'The book was succesfully deleted!',
+          className: 'alert-success',
+        };
+
+        setAlerts((alerts: AlertType[]) => [...alerts, alert]);
+        setTimeout(() => {
+          setAlerts((alerts: AlertType[]) =>
+            alerts.filter((a) => {
+              return !(a.id === alert.id);
+            })
+          );
+        }, 2000);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const categories = ['plans', 'in-process', 'finished'];
@@ -81,23 +143,15 @@ function Book({ id, name, category, category_id }: BookProps) {
 
   const switchCategory = (categoryToSwitch: BookProps['category']) => {
     // Remove from current category
-    if (category === 'plans') {
-      setPlans((plans: BookProps[]) => plans.filter((b) => b.id !== id));
-    } else if (category === 'in-process') {
-      setInProcess((inProcess: BookProps[]) =>
-        inProcess.filter((b) => b.id !== id)
-      );
-    } else if (category === 'finished') {
-      setFinished((finished: BookProps[]) =>
-        finished.filter((b) => b.id !== id)
-      );
-    }
+    getBookListSetterByCategory(category as BookProps['category'])(
+      (books: BookProps[]) => books.filter((b) => !(b.id === id))
+    );
 
     // Add to new category
     const newCategoryId = categoryIds[categoryToSwitch];
     const book: BookProps = {
       id,
-      name,
+      name: bookName,
       category: categoryToSwitch,
       category_id: newCategoryId,
       position: 0,
@@ -142,28 +196,58 @@ function Book({ id, name, category, category_id }: BookProps) {
       className='book cursor-grab'
       data-category={category}
     >
-      <p className='flex items-center justify-center'>{name}</p>
+      {isEditing ? (
+        <form onSubmit={(e) => e.preventDefault()}>
+          <Input
+            type='text'
+            className='edit-book-name'
+            value={text}
+            onChange={handleChange}
+            placeholder='Type new book name here...'
+          />
+        </form>
+      ) : (
+        <p className='flex items-center justify-center'>{bookName}</p>
+      )}
+
       <div className='flex'>
-        <ButtonWithIcon onClick={copyText}>
-          <RiFileCopyLine size='1.2rem' />
-        </ButtonWithIcon>
-        <Dropdown
-          content={
+        <div>
+          {isEditing ? (
+            <ButtonWithIcon onClick={saveChanges}>
+              <RiCheckFill size='1.35rem' />
+            </ButtonWithIcon>
+          ) : (
             <>
-              {categories.map((category) => (
-                <DropdownItem
-                  onClick={() =>
-                    switchCategory(category as BookProps['category'])
-                  }
-                  data-category={category}
-                  key={category}
-                >
-                  <p>Move to {category}</p>
-                </DropdownItem>
-              ))}
+              <ButtonWithIcon onClick={copyText}>
+                <RiFileCopyLine size='1.35rem' />
+              </ButtonWithIcon>
+              <ButtonWithIcon onClick={() => setEditing(true)}>
+                <RiPencilLine size='1.35rem' />
+              </ButtonWithIcon>
+
+              <ButtonWithIcon onClick={deleteBook}>
+                <RiDeleteBin5Line size='1.35rem' />
+              </ButtonWithIcon>
+              <Dropdown
+                content={
+                  <>
+                    {categories.map((category) => (
+                      <DropdownItem
+                        onClick={() =>
+                          switchCategory(category as BookProps['category'])
+                        }
+                        data-category={category}
+                        key={category}
+                      >
+                        <p>Move to {category}</p>
+                      </DropdownItem>
+                    ))}
+                  </>
+                }
+              />
             </>
-          }
-        />
+          )}
+        </div>
       </div>
     </li>
   );

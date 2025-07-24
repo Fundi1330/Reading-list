@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
 .book {
-  @apply bg-white text-black my-2 rounded-lg touch-none p-2 flex w-full justify-between;
+  @apply bg-white text-black my-2 rounded-lg touch-none p-2 flex w-full justify-between items-center;
+}
+
+.edit-book-name {
+  border-radius: 0 !important;
+  border-bottom: 2px solid var(--color-neutral-500);
+}
+.edit-book-name:focus {
+  border-bottom: 2px solid var(--color-neutral-800);
+  outline-width: 0 !important;
 }

@@ -15,7 +15,7 @@ main {
   height: 90%;
 }
 .add-book {
-  @apply w-full sm:w-fit;
+  @apply w-full sm:w-fit border-2 border-neutral-900;
 }
 
 .grid-card-container {
