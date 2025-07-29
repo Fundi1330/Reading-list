@@ -9,7 +9,7 @@ interface DropdownContentProps {
 
 const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
   (props, ref) => {
-    const { open, children, top } = props;
+    const { open, children } = props;
 
     return (
       <div

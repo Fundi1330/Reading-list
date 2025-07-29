@@ -17,7 +17,7 @@ interface DropdownProps {
 
 function Dropdown({ buttonText, content }: DropdownProps) {
   const [open, setOpen] = useState(false);
-  const [dropdownTop, setDropdownTop] = useState<number | null>(0);
+  const [dropdownTop] = useState<number | null>(0);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
