@@ -4,4 +4,4 @@ import os
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}'
-CORS_URL = 'https://reading-list-6nye.onrender.com/'
+CORS_URL = os.environ.get('CORS_URL')

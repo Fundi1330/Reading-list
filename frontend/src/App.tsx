@@ -26,7 +26,6 @@ import AlertList from './components/AlertList/AlertList';
 import Input from './components/Input/Input';
 import Submit from './components/Submit/Submit';
 import axios, { AxiosError } from 'axios';
-import config from './config.json';
 import {
   CategoryIdsContext,
   type CategoryIdsContextType,
@@ -50,7 +49,7 @@ function App() {
 
   useEffect(() => {
     axios
-      .get(config.API_URL + '/category_ids/')
+      .get(import.meta.env.VITE_API_URL + '/category_ids/')
       .then((categories) => {
         setCategoryIds(categories.data);
       })
@@ -58,7 +57,7 @@ function App() {
         console.log(err);
       });
     axios
-      .get(config.API_URL + '/books_by_categories/')
+      .get(import.meta.env.VITE_API_URL + '/books_by_categories/')
       .then((books) => {
         setPlans(books.data.plans);
         setInProcess(books.data['in-process']);
@@ -92,7 +91,7 @@ function App() {
       });
 
       axios
-        .patch(config.API_URL + `/books/reorder/`, {
+        .patch(import.meta.env.VITE_API_URL + `/books/reorder/`, {
           order: new_order,
         })
         .catch((err) => {
@@ -130,10 +129,9 @@ function App() {
       category_id: categoryIds.plans,
       position: plans.length,
     };
-    console.log(book.position);
 
     axios
-      .post(config.API_URL + '/books/', {
+      .post(import.meta.env.VITE_API_URL + '/books/', {
         name: book.name,
         category_id: book.category_id,
         position: book.position,

@@ -27,7 +27,6 @@ import type { AlertType } from '../Alert/Alert';
 import { v4 } from 'uuid';
 import IconButton from '../IconButton/IconButton';
 import axios from 'axios';
-import config from '../../config.json';
 import {
   CategoryIdsContext,
   type CategoryIdsContextType,
@@ -93,7 +92,7 @@ function Book({ id, name, category, category_id, position }: BookProps) {
 
   const saveChanges = () => {
     axios
-      .patch(config.API_URL + `/books/${id}/`, {
+      .patch(import.meta.env.VITE_API_URL + `/books/${id}/`, {
         name: text,
         category_id: category_id,
         position: position,
@@ -109,7 +108,7 @@ function Book({ id, name, category, category_id, position }: BookProps) {
 
   const deleteBook = () => {
     axios
-      .delete(config.API_URL + `/books/${id}/`)
+      .delete(import.meta.env.VITE_API_URL + `/books/${id}/`)
       .then(() => {
         getBookListSetterByCategory(category as BookProps['category'])(
           (books: BookProps[]) => books.filter((b) => !(b.id === id))
@@ -165,7 +164,6 @@ function Book({ id, name, category, category_id, position }: BookProps) {
     } else if (categoryToSwitch === 'in-process') {
       setInProcess((inProcess: BookProps[]) => {
         book.position = inProcess.length;
-        console.log(inProcess);
         return [...inProcess, book];
       });
     } else if (categoryToSwitch === 'finished') {
@@ -175,7 +173,7 @@ function Book({ id, name, category, category_id, position }: BookProps) {
       });
     }
     axios
-      .patch(config.API_URL + `/books/${id}/`, {
+      .patch(import.meta.env.VITE_API_URL + `/books/${id}/`, {
         name: book.name,
         category_id: book.category_id,
         position: book.position,

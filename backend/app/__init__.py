@@ -3,18 +3,22 @@ from flask_migrate import Migrate
 from .models import db, CategoryModel
 from flask_cors import CORS
 from flask_wtf import CSRFProtect
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
+import os
 from .blueprints import api, api_bp
 import json
 
-load_dotenv()
+load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '../frontend', '.env'))) # the .env is located in frontend dir
 
 app = Flask(__file__)
 
-app.config.from_file('../frontend/src/config.json', load=json.load)
 app.config.from_pyfile('app/flask_config.py')
 
-cors = CORS(app, resources={r'/api/*':{'origins': app.config.get('CORS_URL')}}) 
+cors = CORS(app,
+            resources={
+                r'/api/*': {'origins': app.config.get('CORS_URL')}
+            }, 
+            supports_credentials=True) 
 csrf = CSRFProtect(app)
 
 app.app_context().push()
