@@ -22,7 +22,6 @@ const UserProvider = ({ children }: UserProviderProps) => {
         withCredentials: true,
       })
       .then((res) => {
-        console.log(res);
         if (res.data.username == null || res.data.username == '') return;
 
         setUser(res.data);

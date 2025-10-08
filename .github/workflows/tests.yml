@@ -39,7 +39,7 @@ jobs:
       run:
         working-directory: ./backend
     env:
-      FLASK_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
