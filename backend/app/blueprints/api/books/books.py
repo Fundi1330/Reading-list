@@ -1,5 +1,8 @@
-from flask_restful import Resource, reqparse, fields, marshal_with, abort
+from flask_restful import Resource, reqparse, marshal_with, abort
 from app.models import BookModel, db
+from flask_login import login_required
+from .fields.book_fields import book_fields, book_by_categories_fields
+from flask_login import current_user
 
 book_args = reqparse.RequestParser()
 book_args.add_argument('name', type=str, required=True, 
@@ -13,26 +16,12 @@ reorder_args = reqparse.RequestParser()
 reorder_args.add_argument('order', type=dict, required=True,
                           help='New book order cannot be blank!')
 
-book_fields = {
-    'id': fields.Integer,
-    'name': fields.String,
-    'category_id': fields.Integer,
-    'category': fields.String(attribute=lambda x: x.category.name if x.category else None),
-    'position': fields.Integer
-}
-
-book_by_categories_fields = {
-    'plans': fields.List(fields.Nested(book_fields)),
-    'in-process': fields.List(fields.Nested(book_fields)),
-    'finished': fields.List(fields.Nested(book_fields))
-}
-
 class BooksByCategories(Resource):
     @marshal_with(book_by_categories_fields)
     def get(self):
-        plans = BookModel.query.filter_by(category_id=1).order_by(BookModel.position).all()
-        in_process = BookModel.query.filter_by(category_id=2).order_by(BookModel.position).all()
-        finished = BookModel.query.filter_by(category_id=3).order_by(BookModel.position).all()
+        plans = BookModel.query.filter_by(category_id=1, user_id=current_user.id).order_by(BookModel.position).all()
+        in_process = BookModel.query.filter_by(category_id=2, user_id=current_user.id).order_by(BookModel.position).all()
+        finished = BookModel.query.filter_by(category_id=3, user_id=current_user.id).order_by(BookModel.position).all()
 
         return {
             'plans': plans,
@@ -42,46 +31,52 @@ class BooksByCategories(Resource):
 
 class ReorderBooks(Resource):
     @marshal_with(book_fields)
+    @login_required
     def patch(self):
         args = reorder_args.parse_args()
         for b_id, b_pos in args['order'].items():
-            book = BookModel.query.get(int(b_id))
+            book = BookModel.query.filter_by(id=int(b_id), user_id=current_user.id).first()
             if not book:
-                return abort(400, message='Invalid book id!')
+                return abort(400, 'Invalid book id!')
             book.position = b_pos
         db.session.commit()
         return book
 
 class Books(Resource):
     @marshal_with(book_fields)
+    @login_required
     def get(self):
-        books = BookModel.query.order_by(BookModel.position).all()
+        books = BookModel.query.filter_by(user_id=current_user.id).order_by(BookModel.position).all()
         return books
     
     @marshal_with(book_fields)
+    @login_required
     def post(self):
         args = book_args.parse_args()
-        if BookModel.query.filter_by(name=args['name']).first() is not None:
+        
+        if BookModel.query.filter_by(name=args['name'], user_id=current_user.id).first() is not None:
             return abort(400, message='Book with this name is already in the list')
-        book = BookModel(name=args['name'], category_id=args['category_id'], position=args['position'])
+        book = BookModel(name=args['name'], category_id=args['category_id'], position=args['position'], user_id=current_user.id)
         db.session.add(book)
         db.session.commit()
         return book, 201
     
 class Book(Resource):
     @marshal_with(book_fields)
+    @login_required
     def get(self, id):
-        book = BookModel.query.filter_by(id=id).first()
+        book = BookModel.query.filter_by(id=id, user_id=current_user.id).first()
         if not book:
-            abort(404, message='Book not found')
+            return abort(404, 'Book not found')
         return book
     
     @marshal_with(book_fields)
+    @login_required
     def patch(self, id):
         args = book_args.parse_args()
-        book = BookModel.query.filter_by(id=id).first()
+        book = BookModel.query.filter_by(id=id, user_id=current_user.id).first()
         if not book:
-            abort(404, message='Book not found')
+            return abort(404, 'Book not found')
         book.name = args['name']
         book.category_id = args['category_id']
         book.position = args['position']
@@ -90,11 +85,12 @@ class Book(Resource):
         return book
     
     @marshal_with(book_fields)
+    @login_required
     def delete(self, id):
-        book = BookModel.query.filter_by(id=id).first()
+        book = BookModel.query.filter_by(id=id, user_id=current_user.id).first()
         if not book:
-            abort(404, message='Book not found')
+            return abort(404, 'Book not found')
         db.session.delete(book)
         db.session.commit()
-        books = BookModel.query.order_by(BookModel.position).all()
+        books = BookModel.query.filter_by(user_id=current_user.id).order_by(BookModel.position).all()
         return books
