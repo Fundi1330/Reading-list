@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+
+.navbar {
+  @apply w-full sticky top-0 flex gap-4 items-center justify-between p-8 bg-gray-700;
+}
+
+.navbar-link.active {
+  @apply font-bold;
+}

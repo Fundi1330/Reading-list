@@ -1,19 +1,30 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
+import BooksProvider from './context/Books/BooksProvider.tsx';
+import AlertProvider from './context/Alert/AlertProvider.tsx';
+import CategoryIdsProvider from './context/CategoryIds/CategoryIdsProvider.tsx';
+import UserProvider from './context/User/UserProvider.tsx';
+import { BrowserRouter } from 'react-router';
 import App from './App.tsx';
-import BooksProvider from './context/BooksProvider.tsx';
-import AlertProvider from './context/AlertProvider.tsx';
-import CategoryIdsProvider from './context/CategoryIdsProvider.tsx';
+import axios from 'axios';
+
+axios.defaults.withXSRFToken = true;
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AlertProvider>
-      <BooksProvider>
-        <CategoryIdsProvider>
-          <App />
-        </CategoryIdsProvider>
-      </BooksProvider>
-    </AlertProvider>
+    <BrowserRouter>
+      <AlertProvider>
+        <BooksProvider>
+          <CategoryIdsProvider>
+            <UserProvider>
+              <App />
+            </UserProvider>
+          </CategoryIdsProvider>
+        </BooksProvider>
+      </AlertProvider>
+    </BrowserRouter>
   </StrictMode>
 );

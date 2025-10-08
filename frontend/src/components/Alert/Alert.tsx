@@ -3,7 +3,7 @@ import './Alert.css';
 import {
   AlertContext,
   type AlertContextType,
-} from '../../context/AlertContext';
+} from '../../context/Alert/AlertContext';
 import Button from '../Button/Button';
 import { RiCloseLargeFill } from 'react-icons/ri';
 import IconButton from '../IconButton/IconButton';

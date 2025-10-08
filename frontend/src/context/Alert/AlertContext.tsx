@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { AlertType } from '../components/Alert/Alert';
+import type { AlertType } from '../../components/Alert/Alert';
 
 export interface AlertContextType {
   alerts: AlertType[];

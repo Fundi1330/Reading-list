@@ -1,7 +1,7 @@
 import './Submit.css';
 
 interface SubmitProps {
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
   id?: string;
   name?: string;

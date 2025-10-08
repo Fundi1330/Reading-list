@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { BookType } from '../components/Book/Book';
+import type { BookType } from '../../components/Book/Book';
 
 export interface PlansContextType {
   plans: BookType[];

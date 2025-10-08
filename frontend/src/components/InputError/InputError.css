@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+.input-error {
+  @apply text-red-600 text-xs;
+}

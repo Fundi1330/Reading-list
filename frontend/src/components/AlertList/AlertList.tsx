@@ -3,7 +3,7 @@ import './AlertList.css';
 import {
   AlertContext,
   type AlertContextType,
-} from '../../context/AlertContext';
+} from '../../context/Alert/AlertContext';
 
 import Alert from '../Alert/Alert';
 

@@ -17,20 +17,20 @@ import {
   type PlansContextType,
   type InProgerssContextType,
   type FinishedContextType,
-} from '../../context/BooksContext';
+} from '../../context/Books/BooksContext';
 import { useContext, useState, type ChangeEvent } from 'react';
 import {
   AlertContext,
   type AlertContextType,
-} from '../../context/AlertContext';
+} from '../../context/Alert/AlertContext';
 import type { AlertType } from '../Alert/Alert';
 import { v4 } from 'uuid';
 import IconButton from '../IconButton/IconButton';
-import axios from 'axios';
+import axios, { type AxiosHeaderValue } from 'axios';
 import {
   CategoryIdsContext,
   type CategoryIdsContextType,
-} from '../../context/CategoryIdsContext';
+} from '../../context/CategoryIds/CategoryIdsContext';
 import { useBookListByCategory } from '../../hooks/useBookListByCategory';
 import Input from '../Input/Input';
 
@@ -173,13 +173,28 @@ function Book({ id, name, category, category_id, position }: BookProps) {
       });
     }
     axios
-      .patch(import.meta.env.VITE_API_URL + `/books/${id}/`, {
-        name: book.name,
-        category_id: book.category_id,
-        position: book.position,
+      .get(import.meta.env.VITE_BACKEND_URL + 'csrf', {
+        withCredentials: true,
       })
-      .catch((err) => {
-        console.log(err);
+      .then((response) => {
+        const csrfToken = response.headers['x-csrf-token'];
+        axios
+          .patch(
+            import.meta.env.VITE_API_URL + `/books/${id}/`,
+            {
+              name: book.name,
+              category_id: book.category_id,
+              position: book.position,
+            },
+            {
+              headers: {
+                'X-CSRFToken': csrfToken as AxiosHeaderValue,
+              },
+            }
+          )
+          .catch((err) => {
+            console.log(err);
+          });
       });
   };
 

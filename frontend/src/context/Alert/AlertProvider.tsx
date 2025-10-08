@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { AlertContext } from './AlertContext';
-import type { AlertType } from '../components/Alert/Alert';
+import type { AlertType } from '../../components/Alert/Alert';
 
 interface BooksProviderProps {
   children: ReactNode;

@@ -4,7 +4,7 @@ import {
   InProcessContext,
   FinishedContext,
 } from './BooksContext';
-import type { BookType } from '../components/Book/Book';
+import type { BookType } from '../../components/Book/Book';
 
 interface BooksProviderProps {
   children: ReactNode;
