@@ -27,23 +27,25 @@ def create_app():
             app.config.from_object(TestingConfig())
         case _:
             raise ValueError('Wrong FLASK_ENV value!')
-
-    cors.init_app(app,
-                resources={
-                    r'/api/*': {
-                        'origins': app.config.get('CORS_URL'),
-                        'methods': ['GET', 'POST', 'OPTIONS', 'PATCH'],
-                        'allow_headers': ['Content-Type', 'Authorization', 'X-CSRFToken']
-                    },
-                    r'/auth/*': {
-                        'origins': app.config.get('CORS_URL'),
-                        'methods': ['GET', 'POST', 'OPTIONS', 'PATCH'],
-                        'allow_headers': ['Content-Type', 'Authorization', 'X-CSRFToken']
-                    },
-                    r'/csrf': {'origins': app.config.get('CORS_URL')},
-                    r'/current-user': {'origins': app.config.get('CORS_URL')}
-                }, 
-                supports_credentials=True) 
+    if os.environ.get('FLASK_ENV') == 'TESTING':
+        cors.init_app(app)
+    else:
+        cors.init_app(app,
+                    resources={
+                        r'/api/*': {
+                            'origins': app.config.get('CORS_URL'),
+                            'methods': ['GET', 'POST', 'OPTIONS', 'PATCH'],
+                            'allow_headers': ['Content-Type', 'Authorization', 'X-CSRFToken']
+                        },
+                        r'/auth/*': {
+                            'origins': app.config.get('CORS_URL'),
+                            'methods': ['GET', 'POST', 'OPTIONS', 'PATCH'],
+                            'allow_headers': ['Content-Type', 'Authorization', 'X-CSRFToken']
+                        },
+                        r'/csrf': {'origins': app.config.get('CORS_URL')},
+                        r'/current-user': {'origins': app.config.get('CORS_URL')}
+                    }, 
+                    supports_credentials=True) 
     
     migrate.init_app(app, db)
     csrf.init_app(app)
