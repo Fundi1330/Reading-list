@@ -1,6 +1,5 @@
-import { useContext, useEffect } from 'react';
-import { UserContext, type UserContextType } from '../context/User/UserContext';
-import axios from 'axios';
+import { useContext } from 'react';
+import { UserContext } from '../context/User/UserContext';
 
 export const useUser = () => {
   return useContext(UserContext);
