@@ -6,49 +6,28 @@ from app.models import UserModel
 from flask_login import login_user, logout_user
 
 @pytest.fixture(scope='session')
-def test_user_data():
-    return {
-        'username': 'test',
-        'email': 'test@gmail.com',
-        'password': 'Test1234'
-    }
-
-@pytest.fixture
-def app(test_user_data):
+def app():
     environ['FLASK_ENV'] = 'TESTING'
     app = create_app()
-
-    with app.app_context():
-        db.create_all()
-        # Set up a test user
-        test_user = UserModel(username=test_user_data['username'], email=test_user_data['email'])
-        test_user.hash_and_set_password(test_user_data['password'])
-        db.session.add(test_user)
-        db.session.commit()
+    app.config.update({
+        'SECRET_KEY': 'secret',
+    })
     
     yield app
 
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
-class AuthActions(object):
-    def __init__(self):
-        pass
-
-    def login(self, user_id=1):
-        user = db.session.get(UserModel, user_id)
-        login_user(user, remember=True)
-
-    def logout(self):
-        return logout_user()
-
+@pytest.fixture(scope='function', autouse=True)
+def reset_db(app):
+    with app.app_context():
+        db.create_all()
+        yield
+        db.session.remove()
+        db.drop_all()
 
 @pytest.fixture(scope='session')
-def auth():
-    return AuthActions()
+def client(app):
+    return app.test_client()
     
-@pytest.fixture
+@pytest.fixture(scope='session')
 def category_ids(client):
     with client:
         resp = client.get('/api/category-ids/')

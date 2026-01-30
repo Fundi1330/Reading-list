@@ -21,6 +21,7 @@ class DevelmentConfig(object):
         )
     CORS_URL = os.environ.get('CORS_URL')
     SESSION_PROTECTION = 'strong'
+    SESSION_COOKIE_SAMESITE = 'Strict'
     SESSION_COOKIE_HTTPONLY = True # helps prevent xss attacks
     SESSION_COOKIE_SECURE = False # Checks cookies for ssl certificate
 

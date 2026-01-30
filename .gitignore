@@ -342,3 +342,4 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 backend/migrations/versions
+.vscode/

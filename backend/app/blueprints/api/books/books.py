@@ -18,6 +18,7 @@ reorder_args.add_argument('order', type=dict, required=True,
 
 class BooksByCategories(Resource):
     @marshal_with(book_by_categories_fields)
+    @login_required
     def get(self):
         plans = BookModel.query.filter_by(category_id=1, user_id=current_user.id).order_by(BookModel.position).all()
         in_process = BookModel.query.filter_by(category_id=2, user_id=current_user.id).order_by(BookModel.position).all()

@@ -74,4 +74,4 @@ def create_app():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return UserModel.query.get(user_id)
+    return UserModel.query.filter_by(id=int(user_id)).first()

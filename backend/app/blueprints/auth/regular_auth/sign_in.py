@@ -20,7 +20,7 @@ class SignIn(Resource):
         if user is None or not user.check_password(args['password']):
             return abort(400, 'Invalid credentials')
 
-        remember_me = args.get('remember-me', False)
+        remember_me = bool(args.get('remember-me', False))
 
         login_user(user, remember=remember_me)
         
