@@ -32,7 +32,6 @@ class ProductionConfig(DevelmentConfig):
 class TestingConfig(DevelmentConfig):
     DEBUG = False
     TESTING = True
-    WTF_CSRF_ENABLED = False
     
     @property
     def SQLALCHEMY_DATABASE_URI(self):

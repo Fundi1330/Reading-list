@@ -24,7 +24,7 @@ import {
 } from '../../context/Books/BooksContext';
 import Input from '../../components/Input/Input';
 import Submit from '../../components/Submit/Submit';
-import axios, { AxiosError, type AxiosHeaderValue } from 'axios';
+import axios, { AxiosError } from 'axios';
 import {
   CategoryIdsContext,
   type CategoryIdsContextType,
@@ -93,28 +93,15 @@ function Home() {
       });
 
       axios
-        .get(import.meta.env.VITE_BACKEND_URL + 'csrf', {
-          withCredentials: true,
-        })
-        .then((response) => {
-          const csrfToken = response.headers['x-csrf-token'];
-
-          axios
-            .patch(
-              import.meta.env.VITE_API_URL + `/books/reorder/`,
-              {
-                order: new_order,
-              },
-              {
-                headers: {
-                  'X-CSRFToken': csrfToken as AxiosHeaderValue,
-                },
-              }
-            )
-            .catch((err) => {
-              console.log(err);
-            });
-        })
+        .patch(
+          import.meta.env.VITE_API_URL + `/books/reorder/`,
+          {
+            order: new_order,
+          },
+          {
+            withCredentials: true,
+          }
+        )
         .catch((err) => {
           console.log(err);
         });
@@ -151,58 +138,48 @@ function Home() {
       position: plans.length,
     };
     axios
-      .get(import.meta.env.VITE_BACKEND_URL + 'csrf', {
-        withCredentials: true,
+      .post(
+        import.meta.env.VITE_API_URL + '/books/',
+        {
+          name: book.name,
+          category_id: book.category_id,
+          position: book.position,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((resp) => {
+        book.id = resp.data.id;
+        setPlans((plans: BookType[]) => [...plans, book]);
+        setText('');
       })
-      .then((response) => {
-        const csrfToken = response.headers['x-csrf-token'];
+      .catch((err: AxiosError) => {
+        let alert: AlertType;
+        console.log(err);
+        if (err.status == 500) {
+          alert = {
+            id: v4(),
+            children: 'Something went wrong... Please try again later',
+            className: 'alert-error',
+          };
+        } else {
+          if (!err.response) return;
+          alert = {
+            id: v4(),
+            children: (err.response.data as { message: string }).message,
+            className: 'alert-error',
+          };
+        }
 
-        axios
-          .post(
-            import.meta.env.VITE_API_URL + '/books/',
-            {
-              name: book.name,
-              category_id: book.category_id,
-              position: book.position,
-            },
-            {
-              headers: {
-                'X-CSRFToken': csrfToken as AxiosHeaderValue,
-              },
-            }
-          )
-          .then((resp) => {
-            book.id = resp.data.id;
-            setPlans((plans: BookType[]) => [...plans, book]);
-            setText('');
-          })
-          .catch((err: AxiosError) => {
-            let alert: AlertType;
-            console.log(err);
-            if (err.status == 500) {
-              alert = {
-                id: v4(),
-                children: 'Something went wrong... Please try again later',
-                className: 'alert-error',
-              };
-            } else {
-              if (!err.response) return;
-              alert = {
-                id: v4(),
-                children: (err.response.data as { message: string }).message,
-                className: 'alert-error',
-              };
-            }
-
-            setAlerts((alerts: AlertType[]) => [...alerts, alert]);
-            setTimeout(() => {
-              setAlerts((alerts: AlertType[]) =>
-                alerts.filter((a) => {
-                  return !(a.id === alert.id);
-                })
-              );
-            }, 2000);
-          });
+        setAlerts((alerts: AlertType[]) => [...alerts, alert]);
+        setTimeout(() => {
+          setAlerts((alerts: AlertType[]) =>
+            alerts.filter((a) => {
+              return !(a.id === alert.id);
+            })
+          );
+        }, 2000);
       });
   };
   const sensors = useSensors(

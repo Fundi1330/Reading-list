@@ -6,7 +6,6 @@ import Input from '../../components/Input/Input';
 import PasswordInput from '../../components/PasswordInput/PasswordInput';
 import type { AlertType } from '../../components/Alert/Alert';
 import { v4 } from 'uuid';
-import type { AxiosHeaderValue } from 'axios';
 import axios from 'axios';
 import {
   AlertContext,
@@ -24,60 +23,46 @@ function SignIn() {
   const handleSubmit = (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    let csrfToken: string;
-
     const formData = new FormData(ev.target as HTMLFormElement);
 
     axios
-      .get(import.meta.env.VITE_BACKEND_URL + 'csrf', { withCredentials: true })
-      .then((response) => {
-        csrfToken = response.headers['x-csrf-token'];
+      .post(import.meta.env.VITE_BACKEND_URL + 'auth/sign-in/', formData, {
+        withCredentials: true,
       })
-      .then(() => {
-        axios
-          .post(import.meta.env.VITE_BACKEND_URL + 'auth/sign-in/', formData, {
-            headers: {
-              'X-CSRFToken': csrfToken as AxiosHeaderValue,
-            },
-          })
-          .then((res) => {
-            const alert: AlertType = {
-              id: v4(),
-              children: 'You have successfully signed into your account!',
-              className: 'alert-success',
-            };
-            setAlerts((alerts: AlertType[]) => [...alerts, alert]);
+      .then((res) => {
+        const alert: AlertType = {
+          id: v4(),
+          children: 'You have successfully signed into your account!',
+          className: 'alert-success',
+        };
+        setAlerts((alerts: AlertType[]) => [...alerts, alert]);
 
-            setTimeout(() => {
-              setAlerts((alerts: AlertType[]) =>
-                alerts.filter((a) => {
-                  return !(a.id === alert.id);
-                })
-              );
-            }, 2000);
-            setUser(res.data);
-            navigate('/');
-          })
-
-          .catch((err) => {
-            console.log;
-            const alert: AlertType = {
-              id: v4(),
-              children: err.response.message,
-              className: 'alert-error',
-            };
-            setAlerts((alerts: AlertType[]) => [...alerts, alert]);
-            setTimeout(() => {
-              setAlerts((alerts: AlertType[]) =>
-                alerts.filter((a) => {
-                  return !(a.id === alert.id);
-                })
-              );
-            }, 2000);
-          });
+        setTimeout(() => {
+          setAlerts((alerts: AlertType[]) =>
+            alerts.filter((a) => {
+              return !(a.id === alert.id);
+            })
+          );
+        }, 2000);
+        setUser(res.data);
+        navigate('/');
       })
+
       .catch((err) => {
-        console.log(err);
+        console.log;
+        const alert: AlertType = {
+          id: v4(),
+          children: err.response.message,
+          className: 'alert-error',
+        };
+        setAlerts((alerts: AlertType[]) => [...alerts, alert]);
+        setTimeout(() => {
+          setAlerts((alerts: AlertType[]) =>
+            alerts.filter((a) => {
+              return !(a.id === alert.id);
+            })
+          );
+        }, 2000);
       });
   };
 

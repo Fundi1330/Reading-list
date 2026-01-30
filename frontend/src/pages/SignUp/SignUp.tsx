@@ -5,7 +5,7 @@ import InputError from '../../components/InputError/InputError';
 import Submit from '../../components/Submit/Submit';
 import { Link, useNavigate } from 'react-router';
 import PasswordInput from '../../components/PasswordInput/PasswordInput';
-import axios, { type AxiosHeaderValue } from 'axios';
+import axios from 'axios';
 import {
   AlertContext,
   type AlertContextType,
@@ -31,58 +31,44 @@ function SignUp() {
   const handleSubmit = (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    let csrfToken: string;
-
     const formData = new FormData(ev.target as HTMLFormElement);
     axios
-      .get(import.meta.env.VITE_BACKEND_URL + 'csrf', { withCredentials: true })
-      .then((response) => {
-        csrfToken = response.headers['x-csrf-token'];
+      .post(import.meta.env.VITE_BACKEND_URL + 'auth/sign-up/', formData, {
+        withCredentials: true,
       })
       .then(() => {
-        axios
-          .post(import.meta.env.VITE_BACKEND_URL + 'auth/sign-up/', formData, {
-            headers: {
-              'X-CSRFToken': csrfToken as AxiosHeaderValue,
-            },
-          })
-          .then(() => {
-            const alert: AlertType = {
-              id: v4(),
-              children: 'You have successfully signed up! Please, sign in',
-              className: 'alert-success',
-            };
-            setAlerts((alerts: AlertType[]) => [...alerts, alert]);
-            setTimeout(() => {
-              setAlerts((alerts: AlertType[]) =>
-                alerts.filter((a) => {
-                  return !(a.id === alert.id);
-                })
-              );
-            }, 2000);
-            navigate('/auth/sign-in');
-          })
-          .catch((err) => {
-            console.log(err);
-            const alert: AlertType = {
-              id: v4(),
-              children: err.response.message,
-              className: 'alert-error',
-            };
-            setAlerts((alerts: AlertType[]) => [...alerts, alert]);
-            setTimeout(() => {
-              setAlerts((alerts: AlertType[]) =>
-                alerts.filter((a) => {
-                  return !(a.id === alert.id);
-                })
-              );
-            }, 2000);
-          });
+        const alert: AlertType = {
+          id: v4(),
+          children: 'You have successfully signed up! Please, sign in',
+          className: 'alert-success',
+        };
+        setAlerts((alerts: AlertType[]) => [...alerts, alert]);
+        setTimeout(() => {
+          setAlerts((alerts: AlertType[]) =>
+            alerts.filter((a) => {
+              return !(a.id === alert.id);
+            })
+          );
+        }, 2000);
+        navigate('/auth/sign-in');
       })
       .catch((err) => {
         console.log(err);
+        const alert: AlertType = {
+          id: v4(),
+          children: err.response.message,
+          className: 'alert-error',
+        };
+        setAlerts((alerts: AlertType[]) => [...alerts, alert]);
+        setTimeout(() => {
+          setAlerts((alerts: AlertType[]) =>
+            alerts.filter((a) => {
+              return !(a.id === alert.id);
+            })
+          );
+        }, 2000);
       });
-  };
+  }
 
   const handlePasswordInput = (ev: ChangeEvent) => {
     setPassword((ev.target as HTMLInputElement).value);

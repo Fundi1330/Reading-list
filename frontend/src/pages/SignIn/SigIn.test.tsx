@@ -14,11 +14,6 @@ describe('SignIn', () => {
     vi.resetAllMocks();
     cleanup();
     vi.mock('axios');
-    mockedAxios.get.mockResolvedValueOnce({
-      headers: {
-        'x-csrf-token': 'Test',
-      },
-    });
   });
 
   it('successful sign in', async () => {

@@ -26,7 +26,7 @@ import {
 import type { AlertType } from '../Alert/Alert';
 import { v4 } from 'uuid';
 import IconButton from '../IconButton/IconButton';
-import axios, { type AxiosHeaderValue } from 'axios';
+import axios from 'axios';
 import {
   CategoryIdsContext,
   type CategoryIdsContextType,
@@ -173,28 +173,19 @@ function Book({ id, name, category, category_id, position }: BookProps) {
       });
     }
     axios
-      .get(import.meta.env.VITE_BACKEND_URL + 'csrf', {
-        withCredentials: true,
-      })
-      .then((response) => {
-        const csrfToken = response.headers['x-csrf-token'];
-        axios
-          .patch(
-            import.meta.env.VITE_API_URL + `/books/${id}/`,
-            {
-              name: book.name,
-              category_id: book.category_id,
-              position: book.position,
-            },
-            {
-              headers: {
-                'X-CSRFToken': csrfToken as AxiosHeaderValue,
-              },
-            }
-          )
-          .catch((err) => {
-            console.log(err);
-          });
+      .patch(
+        import.meta.env.VITE_API_URL + `/books/${id}/`,
+        {
+          name: book.name,
+          category_id: book.category_id,
+          position: book.position,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .catch((err) => {
+        console.log(err);
       });
   };
 

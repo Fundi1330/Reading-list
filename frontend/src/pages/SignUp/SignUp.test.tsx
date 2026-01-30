@@ -20,11 +20,6 @@ describe('SignUp', () => {
   const mockedAxios = axios as Mocked<typeof axios>;
   beforeEach(() => {
     vi.mock('axios');
-    mockedAxios.get.mockResolvedValueOnce({
-      headers: {
-        'x-csrf-token': 'Test',
-      },
-    });
     cleanup();
   });
 

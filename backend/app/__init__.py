@@ -2,7 +2,6 @@ from flask import Flask
 from flask_migrate import Migrate
 from .models import db, CategoryModel, UserModel
 from flask_cors import CORS
-from flask_wtf import CSRFProtect
 from dotenv import load_dotenv
 import os
 from .blueprints import auth_bp, api_bp, general_bp 
@@ -12,7 +11,6 @@ from .flask_config import DevelmentConfig, ProductionConfig, TestingConfig
 load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '../frontend', '.env'))) # the .env is located in frontend dir
 
 migrate = Migrate()
-csrf = CSRFProtect()
 cors = CORS()
 
 def create_app():
@@ -35,20 +33,18 @@ def create_app():
                         r'/api/*': {
                             'origins': app.config.get('CORS_URL'),
                             'methods': ['GET', 'POST', 'OPTIONS', 'PATCH'],
-                            'allow_headers': ['Content-Type', 'Authorization', 'X-CSRFToken']
+                            'allow_headers': ['Content-Type', 'Authorization']
                         },
                         r'/auth/*': {
                             'origins': app.config.get('CORS_URL'),
                             'methods': ['GET', 'POST', 'OPTIONS', 'PATCH'],
-                            'allow_headers': ['Content-Type', 'Authorization', 'X-CSRFToken']
+                            'allow_headers': ['Content-Type', 'Authorization']
                         },
-                        r'/csrf': {'origins': app.config.get('CORS_URL')},
                         r'/current-user': {'origins': app.config.get('CORS_URL')}
                     }, 
                     supports_credentials=True) 
     
     migrate.init_app(app, db)
-    csrf.init_app(app)
     login_manager.init_app(app)
     db.init_app(app)
 

@@ -9,9 +9,7 @@ import { BrowserRouter } from 'react-router';
 import App from './App.tsx';
 import axios from 'axios';
 
-axios.defaults.withXSRFToken = true;
 axios.defaults.withCredentials = true;
-axios.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
