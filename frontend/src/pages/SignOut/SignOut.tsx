@@ -1,27 +1,18 @@
-import axios from 'axios';
-import { useNavigate } from 'react-router';
-import { useUser } from '../../hooks/useUser';
+import { signOut } from "firebase/auth";
+import { useEffect } from "react";
+import { auth } from "../../firebase";
+import { useNavigate } from "react-router-dom";
 
 const SignOut = () => {
   const navigate = useNavigate();
-  const { setUser } = useUser();
-
-  axios
-    .post(
-      import.meta.env.VITE_BACKEND_URL + `/auth/sign-out/`,
-      {},
-      {
-        withCredentials: true,
-      }
-    )
-    .then(() => {
-      setUser(null);
-      navigate('/auth/sign-in/');
-    })
-    .catch((err) => {
-      console.log(err);
+  useEffect(() => {
+    signOut(auth).then(() => {
+      navigate('/', { replace: true });
+    }).catch((error) => {
+      console.log(error);
     });
-  return <></>;
-};
+  }, []);
+  return <div>Loading...</div>;
+}
 
 export default SignOut;

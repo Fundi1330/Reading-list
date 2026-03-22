@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@firebase-oss/ui-styles/tailwind";
 
 * {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

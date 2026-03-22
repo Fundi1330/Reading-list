@@ -8,6 +8,8 @@ import UserProvider from './context/User/UserProvider.tsx';
 import { BrowserRouter } from 'react-router';
 import App from './App.tsx';
 import axios from 'axios';
+import { FirebaseUIProvider } from '@firebase-oss/ui-react';
+import { ui } from './firebase.ts';
 
 axios.defaults.withCredentials = true;
 
@@ -18,7 +20,9 @@ createRoot(document.getElementById('root')!).render(
         <BooksProvider>
           <CategoryIdsProvider>
             <UserProvider>
-              <App />
+              <FirebaseUIProvider ui={ui}>
+                <App />
+              </FirebaseUIProvider>
             </UserProvider>
           </CategoryIdsProvider>
         </BooksProvider>

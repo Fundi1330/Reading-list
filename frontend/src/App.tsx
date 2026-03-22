@@ -6,8 +6,16 @@ import NavBar from './components/NavBar/NavBar.tsx';
 import { Route, Routes } from 'react-router';
 import SignOut from './pages/SignOut/SignOut.tsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.tsx';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { auth } from './firebase.ts';
+import { useUser } from './hooks/useUser.tsx';
+import { useEffect } from 'react';
 
 function App() {
+  const { setUser } = useUser();
+  useEffect(() => onAuthStateChanged(auth, (user: User | null) => {
+    setUser(user);
+  }), []);
   return (
     <>
       <header className='m-3 p-2'>

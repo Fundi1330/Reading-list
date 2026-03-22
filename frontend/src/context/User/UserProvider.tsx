@@ -1,38 +1,37 @@
-import { useEffect, useMemo, type ReactNode } from 'react';
-import { UserContext, type UserType } from './UserContext';
-import axios from 'axios';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
+import { auth } from '../../firebase';
+import type { User } from 'firebase/auth';
+
+import { createContext } from 'react';
+
+export interface UserContextType {
+  user: User | null;
+  setUser: Function;
+}
+
+export const UserContext = createContext<UserContextType>({
+  user: null,
+  setUser: () => { },
+});
+
 
 interface UserProviderProps {
   children: ReactNode;
 }
 
 const UserProvider = ({ children }: UserProviderProps) => {
-  const [user, setUser] = useLocalStorage({
-    keyName: 'user',
-    defaultValue: null,
-  });
+  const [user, setUser] = useState<User | null>(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(import.meta.env.VITE_BACKEND_URL + '/current-user', {
-        withCredentials: true,
-      })
-      .then((res) => {
-        if (res.data.username == null || res.data.username == '') return;
-
-        setUser(res.data);
-      })
-      .catch(() => navigate('/auth/sign-in/'));
+    if (!auth.currentUser) navigate('/auth/sign-in/');
+    setUser(auth.currentUser);
   }, []);
 
-  const value: UserType = useMemo(() => user, [user]);
-
   return (
-    <UserContext.Provider value={{ user: value, setUser }}>
+    <UserContext.Provider value={{ user: user, setUser }}>
       {children}
     </UserContext.Provider>
   );
